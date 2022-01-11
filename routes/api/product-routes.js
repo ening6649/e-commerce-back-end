@@ -18,13 +18,25 @@ router.get('/', (req, res) => {
       {
         model: Category,
         attributes: ['id', 'category_name'],
-        include: {
-          model: Tag,
-          attributes: ['tag_name']
-        }
-      }
-    ]
-  })
+      },
+      {
+        model: Tag,
+        attributes: ['id', 'tag_name'],
+        through: ProductTag,
+        as: 'throughproducttag'
+      },
+      // {
+      //   model: ProductTag,
+      //   attributes: ['product_id', 'tag_id'],
+      //   through: ProductTag,
+      //   as: 'throughproducttag'
+      // }
+    ],
+  }) .then(dbPostData => res.json(dbPostData))
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  });
 });
 
 // get one product
@@ -45,13 +57,20 @@ router.get('/:id', (req, res) => {
       {
         model: Category,
         attributes: ['id', 'category_name'],
-        include: {
-          model: Tag,
-          attributes: ['tag_name']
-        }
+      
+      },
+      {
+        model: Tag,
+        attributes: ['id','tag_name'],
+        through: ProductTag,
+        as: 'throughproducttag'
       }
     ]
-  })
+  }).then(dbPostData => res.json(dbPostData))
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  });
 });
 
 // create new product
@@ -64,7 +83,17 @@ router.post('/', (req, res) => {
       tagIds: [1, 2, 3, 4]
     }
   */
-  Product.create(req.body)
+    // req.body = {
+    //   product_name: req.body.product_name,
+    //   price: req.body.price,
+    //   stock: req.body.stock,
+    // }
+  Product.create({
+    product_name: req.body.product_name,
+    price: req.body.price,
+    stock: req.body.stock,
+    tagIds: req.body.tagIds
+  })
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
       if (req.body.tagIds.length) {

@@ -14,14 +14,17 @@ router.get('/', (req, res) => {
     include: [
       {
         model: Product,
-        attributes: ['id', 'category_name'],
-        include: {
-          model: Tag,
-          attributes: ['tag_name']
-        }
+        attributes: ['id', 'product_name','price', 'stock'],
+        through: ProductTag,
+        as: 'throughproducttag'
+        
       }
     ]
-  })
+  }).then(dbPostData => res.json(dbPostData))
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  });
 });
 
 router.get('/:id', (req, res) => {
@@ -43,16 +46,22 @@ router.get('/:id', (req, res) => {
           'product_name',
           'price',
           'stock'
-        ]
+        ],
+        through: ProductTag,
+        as: 'throughproducttag'
       }
     ]
-  })
+  }).then(dbPostData => res.json(dbPostData))
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  });
 });
 
 router.post('/', (req, res) => {
   // create a new tag
   Tag.create({
-    category_name: req.body.tag_name,
+    tag_name: req.body.tag_name,
 
   })
   .then(dbPostData => res.json(dbPostData))
